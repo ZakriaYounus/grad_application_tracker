@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Application Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div id="toast-root" class="toast-root"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="16,2 29,9 29,23 16,30 3,23 3,9" stroke="url(#bgrad)" stroke-width="1.6" fill="rgba(157,127,232,0.08)"/>
+        <polygon points="16,9 23,13 23,21 16,25 9,21 9,13" stroke="url(#bgrad)" stroke-width="1.3" fill="none"/>
+        <defs>
+          <linearGradient id="bgrad" x1="3" y1="2" x2="29" y2="30">
+            <stop offset="0" stop-color="#4dd8e8"/>
+            <stop offset="1" stop-color="#9b7fe8"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-title">TRACKER</span>
+        <span class="brand-sub">grad &amp; scholarship applications</span>
+      </div>
+    </div>
+
+    <nav class="tabs" id="main-tabs">
+      <button class="tab active" data-view="dashboard">Dashboard</button>
+      <button class="tab" data-view="applications">Applications</button>
+      <button class="tab" data-view="recommenders">Recommenders</button>
+    </nav>
+
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" id="import-btn">⬆ Import Excel</button>
+      <div class="export-menu">
+        <button class="btn btn-ghost" id="export-toggle">Export ▾</button>
+        <div class="export-dropdown" id="export-dropdown">
+          <a href="/api/export/ics" class="export-item">📅 Calendar (.ics)</a>
+          <a href="/api/export/json" class="export-item">💾 Full backup (.json)</a>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="new-app-btn">+ New Application</button>
+    </div>
+  </div>
+</header>
+
+<main class="app-main">
+
+  <!-- ===================== DASHBOARD VIEW ===================== -->
+  <section id="view-dashboard" class="view active">
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="dashboard-grid">
+      <div class="panel deadlines-panel">
+        <div class="panel-head">
+          <h2>Upcoming Deadlines</h2>
+          <span class="panel-hint">next 45 days</span>
+        </div>
+        <div id="deadlines-list" class="deadlines-list"></div>
+      </div>
+
+      <div class="panel breakdown-panel">
+        <div class="panel-head">
+          <h2>Status Breakdown</h2>
+        </div>
+        <div id="status-breakdown" class="status-breakdown"></div>
+      </div>
+    </div>
+
+    <div class="panel-head section-head">
+      <h2>All Applications</h2>
+    </div>
+    <div id="dashboard-apps-grid" class="apps-grid"></div>
+  </section>
+
+  <!-- ===================== APPLICATIONS VIEW ===================== -->
+  <section id="view-applications" class="view">
+    <div class="filter-bar">
+      <input type="text" id="search-input" class="input search-input" placeholder="Search university or program…">
+      <select id="filter-status" class="input select-input">
+        <option value="">All statuses</option>
+      </select>
+      <select id="filter-priority" class="input select-input">
+        <option value="">All priorities</option>
+        <option value="reach">Reach</option>
+        <option value="target">Target</option>
+        <option value="safety">Safety</option>
+      </select>
+      <select id="filter-country" class="input select-input">
+        <option value="">All countries</option>
+      </select>
+      <select id="sort-by" class="input select-input">
+        <option value="deadline">Sort: Deadline</option>
+        <option value="name">Sort: Name</option>
+        <option value="completion">Sort: Completion</option>
+        <option value="status">Sort: Status</option>
+      </select>
+    </div>
+    <div id="applications-grid" class="apps-grid"></div>
+  </section>
+
+  <!-- ===================== RECOMMENDERS VIEW ===================== -->
+  <section id="view-recommenders" class="view">
+    <div class="panel-head section-head">
+      <h2>Recommenders</h2>
+      <button class="btn btn-secondary" id="new-recommender-btn">+ Add Recommender</button>
+    </div>
+    <div id="recommenders-grid" class="recommenders-grid"></div>
+  </section>
+
+</main>
+
+<!-- ===================== NEW APPLICATION MODAL ===================== -->
+<div class="modal-overlay" id="modal-new-app">
+  <div class="modal modal-form">
+    <div class="modal-head">
+      <h2>New Application</h2>
+      <button class="modal-close" data-close="modal-new-app">&times;</button>
+    </div>
+    <form id="form-new-app" class="modal-body">
+      <div class="form-grid">
+        <label class="field span-2">
+          <span>University *</span>
+          <input type="text" name="university" required placeholder="e.g. Technical University of Munich">
+        </label>
+        <label class="field span-2">
+          <span>Program *</span>
+          <input type="text" name="program" required placeholder="e.g. MSc Games Engineering">
+        </label>
+        <label class="field">
+          <span>Degree type</span>
+          <input type="text" name="degree_type" placeholder="MS / MEng / PhD…" list="degree-types">
+          <datalist id="degree-types">
+            <option value="MSc">
+            <option value="MS">
+            <option value="MA">
+            <option value="MEng">
+            <option value="MFA">
+            <option value="PhD">
+          </datalist>
+        </label>
+        <label class="field">
+          <span>Country</span>
+          <input type="text" name="country" placeholder="e.g. Germany" list="country-list">
+        </label>
+        <label class="field">
+          <span>City</span>
+          <input type="text" name="city" placeholder="e.g. Munich">
+        </label>
+        <label class="field">
+          <span>Funding / scholarship</span>
+          <input type="text" name="funding_type" placeholder="e.g. DAAD, self-funded…">
+        </label>
+        <label class="field">
+          <span>Application deadline</span>
+          <input type="date" name="application_deadline">
+        </label>
+        <label class="field">
+          <span>Scholarship deadline</span>
+          <input type="date" name="scholarship_deadline">
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select name="status" id="new-app-status"></select>
+        </label>
+        <label class="field">
+          <span>Priority</span>
+          <select name="priority">
+            <option value="reach">Reach</option>
+            <option value="target" selected>Target</option>
+            <option value="safety">Safety</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Application fee</span>
+          <input type="number" step="0.01" name="application_fee" placeholder="0.00">
+        </label>
+        <label class="field">
+          <span>English test required</span>
+          <input type="text" name="test_required" placeholder="e.g. IELTS 6.5">
+        </label>
+        <label class="field span-2">
+          <span>Application URL / portal link</span>
+          <input type="text" name="application_url" placeholder="https://…">
+        </label>
+        <label class="field span-2 checkbox-field">
+          <input type="checkbox" name="use_default_checklist" checked>
+          <span>Start with a default checklist (SOP, CV, transcripts, test score, portfolio, form, fee)</span>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="modal-new-app">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Application</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== APPLICATION DETAIL MODAL ===================== -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal modal-detail">
+    <div class="modal-head detail-head">
+      <div>
+        <h2 id="detail-university">University</h2>
+        <p id="detail-program" class="detail-subtitle">Program</p>
+      </div>
+      <div class="detail-head-actions">
+        <button class="btn btn-danger-ghost" id="delete-app-btn">Delete</button>
+        <button class="modal-close" data-close="modal-detail">&times;</button>
+      </div>
+    </div>
+
+    <div class="detail-tabs" id="detail-tabs">
+      <button class="detail-tab active" data-dtab="overview">Overview</button>
+      <button class="detail-tab" data-dtab="checklist">Checklist</button>
+      <button class="detail-tab" data-dtab="documents">Documents</button>
+      <button class="detail-tab" data-dtab="lor">Recommenders</button>
+    </div>
+
+    <div class="modal-body detail-body">
+
+      <!-- Overview -->
+      <div class="detail-pane active" data-dpane="overview">
+        <div id="detail-overview-container"></div>
+      </div>
+
+      <!-- Checklist -->
+      <div class="detail-pane" data-dpane="checklist">
+        <div class="checklist-add">
+          <input type="text" id="new-checklist-title" class="input" placeholder="Add a checklist item…">
+          <input type="text" id="new-checklist-category" class="input checklist-cat-input" placeholder="Category (optional)">
+          <input type="date" id="new-checklist-due" class="input">
+          <button class="btn btn-secondary" id="add-checklist-btn">Add</button>
+        </div>
+        <div id="checklist-items" class="checklist-items"></div>
+      </div>
+
+      <!-- Documents -->
+      <div class="detail-pane" data-dpane="documents">
+        <div class="doc-upload-row">
+          <input type="text" id="doc-category-input" class="input" placeholder="Category (e.g. SOP, CV, Transcript)" list="doc-categories">
+          <datalist id="doc-categories">
+            <option value="SOP"><option value="CV"><option value="Transcript">
+            <option value="Test Score"><option value="Portfolio"><option value="Form"><option value="Fee">
+          </datalist>
+          <input type="file" id="doc-file-input">
+          <button class="btn btn-secondary" id="upload-doc-btn">Upload version</button>
+        </div>
+        <div id="documents-list" class="documents-list"></div>
+      </div>
+
+      <!-- LOR / Recommenders -->
+      <div class="detail-pane" data-dpane="lor">
+        <div class="lor-add-row">
+          <select id="lor-recommender-select" class="input"></select>
+          <input type="date" id="lor-due-date" class="input">
+          <button class="btn btn-secondary" id="add-lor-btn">Request Letter</button>
+        </div>
+        <div id="lor-list" class="lor-list"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NEW RECOMMENDER MODAL ===================== -->
+<div class="modal-overlay" id="modal-new-recommender">
+  <div class="modal modal-form-sm">
+    <div class="modal-head">
+      <h2>Add Recommender</h2>
+      <button class="modal-close" data-close="modal-new-recommender">&times;</button>
+    </div>
+    <form id="form-new-recommender" class="modal-body">
+      <div class="form-grid">
+        <label class="field span-2"><span>Name *</span><input type="text" name="name" required></label>
+        <label class="field span-2"><span>Email</span><input type="email" name="email"></label>
+        <label class="field"><span>Institution</span><input type="text" name="institution"></label>
+        <label class="field"><span>Title / relationship</span><input type="text" name="title" placeholder="e.g. Professor, Supervisor"></label>
+        <label class="field span-2"><span>Notes</span><textarea name="notes" rows="2"></textarea></label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="modal-new-recommender">Cancel</button>
+        <button type="submit" class="btn btn-primary">Add Recommender</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<datalist id="country-list"></datalist>
+
+<!-- ===================== IMPORT EXCEL MODAL ===================== -->
+<div class="modal-overlay" id="modal-import">
+  <div class="modal modal-form-sm">
+    <div class="modal-head">
+      <h2>Import from Excel</h2>
+      <button class="modal-close" data-close="modal-import">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="import-hint">Upload a spreadsheet where each sheet is a country and columns include <em>Uni name</em>, <em>Course name</em>, <em>Application timeline</em>, <em>Scholarships if any</em>, <em>IELTS Requirement</em>, <em>Portfolio Required</em>, and <em>Course websites</em>. Existing entries are skipped automatically.</p>
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-zone-inner">
+          <div class="drop-icon">📂</div>
+          <div class="drop-label">Drop your .xlsx file here</div>
+          <div class="drop-sub">or click to browse</div>
+        </div>
+        <input type="file" id="import-file-input" accept=".xlsx,.xlsm" class="drop-file-input">
+      </div>
+      <div id="import-filename" class="import-filename"></div>
+      <div id="import-status" class="import-status"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="modal-import">Cancel</button>
+        <button type="button" class="btn btn-primary" id="import-submit-btn" disabled>Import</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
