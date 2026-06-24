@@ -29,17 +29,18 @@ Populates the tracker with 4 sample applications (Germany, Canada, South Korea, 
 
 ## Features
 
-| Feature | Details |
-|---|---|
-| **Application tracking** | Status, priority (reach/target/safety), deadlines, funding type, portal login, test requirements |
-| **Deadline countdown** | Color-coded urgency: critical ≤7 days, soon ≤21, upcoming ≤45 |
-| **Per-application checklist** | Default template (SOP, CV, Transcripts, Test Score, Portfolio, Application, Fee) + custom items; 3-state cycle |
-| **Document versioning** | Upload multiple versions per category; auto-increments version number; download any version |
-| **Recommenders** | Master list; link to as many applications as needed; track LOR status + dates |
-| **Dashboard** | Live stats, next-up deadlines across all applications, status breakdown |
-| **Search & filter** | Filter by status, priority, country, sort by deadline/name/completion |
-| **Calendar export** | `.ics` file (importable into Google Calendar, Outlook, Apple Calendar) with 3-day reminders |
-| **JSON backup** | Full data export at `/api/export/json` |
+| Feature                       | Details                                                                                                                          |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Application tracking**      | Status, priority (reach/target/safety), deadlines, funding type, portal login, test requirements                                 |
+| **Deadline countdown**        | Color-coded urgency: critical ≤7 days, soon ≤21, upcoming ≤45                                                                    |
+| **Per-application checklist** | Default template (SOP, CV, Transcripts, Test Score, Portfolio, Application, Fee) + custom items; 3-state cycle                   |
+| **Document versioning**       | Upload multiple versions per category; auto-increments version number; download any version                                      |
+| **Recommenders**              | Master list; link to as many applications as needed; track LOR status + dates                                                    |
+| **Dashboard**                 | Live stats, next-up deadlines across all applications, status breakdown                                                          |
+| **Search & filter**           | Filter by status, priority, country, sort by deadline/name/completion                                                            |
+| **Calendar export**           | `.ics` file (importable into Google Calendar, Outlook, Apple Calendar) with 3-day reminders                                      |
+| **Excel import**              | Import your existing application tracker spreadsheet to quickly populate the dashboard instead of entering applications manually |
+| **JSON backup**               | Full data export at `/api/export/json`                                                                                           |
 
 ---
 
